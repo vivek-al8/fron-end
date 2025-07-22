@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom JS Slider</title>
+  <style>
+    body {
+      background-color: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      padding: 50px;
+      color: white;
+    }
+    .slider-container {
+      text-align: center;
+      background: #0f0f0f;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .main-image {
+      width: 600px;
+      height: 350px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .thumbnail-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .thumb-button {
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+    }
+    .thumbnail-container {
+      display: flex;
+      overflow: hidden;
+      max-width: 520px;
+    }
+    .thumbnail-track {
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      gap: 8px;
+    }
+    .thumbnail-track img {
+      width: 80px;
+      height: 50px;
+      object-fit: cover;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .thumbnail-track img.active {
+      border-color: red;
+    }
+  </style>
+</head>
+<body>
+  <div id="slider" class="slider-container"></div>
+
+  <script>
+    const imageList = [
+      "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGZvb2R8ZW58MHx8MHx8fDA%3D",
+      "https://images.unsplash.com/photo-1600850055823-46bb9665fa2b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGZydWl0JTIwYm93bHxlbnwwfHwwfHx8MA%3D%3D",
+      "https://images.unsplash.com/photo-1565808229224-264b6fcc5052?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fGljZSUyMGNyZWFtJTIwaW4lMjBib3dsfGVufDB8fDB8fHww",
+      "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJ1aXQlMjBib3dsfGVufDB8fDB8fHww",
+      "https://images.unsplash.com/photo-1708782343454-5d66dda6e107?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzV8fGljZSUyMGNyZWFtJTIwaW4lMjBib3dsfGVufDB8fDB8fHww",
+      "https://images.unsplash.com/photo-1498507297833-5373e346b4e0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnJ1aXQlMjBib3dsfGVufDB8fDB8fHww",
+      "https://plus.unsplash.com/premium_photo-1670683927272-0ced9966d657?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZnJ1aXQlMjBpbiUyMGJvd2x8ZW58MHx8MHx8fDA%3D",
+      "https://images.unsplash.com/photo-1594497523022-e4d56a881497?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZnJ1aXQlMjBpbiUyMGJvd2x8ZW58MHx8MHx8fDA%3D",
+      "https://images.unsplash.com/photo-1675962292427-062dc596171e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGZydWl0JTIwaW4lMjBib3dsfGVufDB8fDB8fHww"
+    ];
+
+    let currentIndex = 0;
+    let scrollPosition = 0;
+
+    function createSlider(images) {
+      const slider = document.getElementById("slider");
+
+      // Main Image
+      const mainImg = document.createElement("img");
+      mainImg.src = images[currentIndex];
+      mainImg.className = "main-image";
+      slider.appendChild(mainImg);
+
+      // Thumbnail section with scroll arrows
+      const thumbnailWrapper = document.createElement("div");
+      thumbnailWrapper.className = "thumbnail-wrapper";
+
+      const leftBtn = document.createElement("button");
+      leftBtn.className = "thumb-button";
+      leftBtn.innerHTML = "&#10094;";
+      leftBtn.onclick = () => scrollThumbnails("left");
+
+      const rightBtn = document.createElement("button");
+      rightBtn.className = "thumb-button";
+      rightBtn.innerHTML = "&#10095;";
+      rightBtn.onclick = () => scrollThumbnails("right");
+
+      const thumbContainer = document.createElement("div");
+      thumbContainer.className = "thumbnail-container";
+
+      const thumbTrack = document.createElement("div");
+      thumbTrack.className = "thumbnail-track";
+
+      images.forEach((src, i) => {
+        const thumb = document.createElement("img");
+        thumb.src = src;
+        thumb.classList.add("thumb");
+        if (i === currentIndex) thumb.classList.add("active");
+
+        thumb.onclick = () => {
+          currentIndex = i;
+          updateSlider();
+        };
+
+        thumbTrack.appendChild(thumb);
+      });
+
+      thumbContainer.appendChild(thumbTrack);
+      thumbnailWrapper.appendChild(leftBtn);
+      thumbnailWrapper.appendChild(thumbContainer);
+      thumbnailWrapper.appendChild(rightBtn);
+
+      slider.appendChild(thumbnailWrapper);
+    }
+
+    function updateSlider() {
+      const mainImg = document.querySelector(".main-image");
+      const thumbs = document.querySelectorAll(".thumb");
+
+      mainImg.src = imageList[currentIndex];
+      thumbs.forEach((thumb, i) => {
+        thumb.classList.toggle("active", i === currentIndex);
+      });
+    }
+
+    function scrollThumbnails(direction) {
+      const track = document.querySelector(".thumbnail-track");
+      const container = document.querySelector(".thumbnail-container");
+
+      const thumbWidth = 88; // 80px + 8px gap
+      const visibleThumbs = Math.floor(container.offsetWidth / thumbWidth);
+
+      if (direction === "left") {
+        scrollPosition = Math.max(0, scrollPosition - visibleThumbs);
+      } else {
+        const maxScroll = imageList.length - visibleThumbs;
+        scrollPosition = Math.min(maxScroll, scrollPosition + visibleThumbs);
+      }
+
+      track.style.transform = `translateX(-${scrollPosition * thumbWidth}px)`;
+    }
+
+    createSlider(imageList);
+  </script>
+</body>
+</html>
+
+
