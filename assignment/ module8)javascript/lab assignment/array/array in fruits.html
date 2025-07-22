@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fruit Array Manipulation</title>
+</head>
+
+<body>
+    <h1>Fruit Array Task</h1>
+    <button onclick="modifyFruits()">Modify Fruits</button>
+    <p id="result"></p>
+
+    <script>
+        function modifyFruits() {
+
+            let fruits = ["apple", "banana", "cherry"];
+            fruits.push("orange");
+            fruits.shift();
+
+            console.log("Modified array:", fruits);
+
+            document.getElementById("result").textContent =
+                "Modified array: " + fruits.join(", ");
+        }
+    </script>
+</body>
+
+</html>
